@@ -1,50 +1,54 @@
-<!-- http://www.brucelawson.co.uk/2010/a-minimal-html5-document/ -->
-
 <!doctype html>
-<html lang=en>
+
+<html lang="en">
 <head>
-<meta charset=utf-8>
-<title>blah</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Magic</title>
+  <style>
+      #first, #second {
+          width: 250px;
+          height: 550px;
+      }
+  </style>
 </head>
 <body>
-<p>I'm the content</p>
-<div class="buttons">
-<button id="scanButton">Scan</button>
-<button id="writeButton">Write</button>
-</div>
-<script>
-scanButton.addEventListener("click", async () => {
-  log("User clicked scan button");
+    Text 1
+    <textarea id="first"></textarea>
 
-  try {
-    const ndef = new NDEFReader();
-    await ndef.scan();
-    log("> Scan started");
+    Text 2
+    <textarea id="second"></textarea>
 
-    ndef.addEventListener("readingerror", () => {
-      log("Argh! Cannot read data from the NFC tag. Try another one?");
-    });
+    <button id="process">Go!</button>
 
-    ndef.addEventListener("reading", ({ message, serialNumber }) => {
-      log(`> Serial Number: ${serialNumber}`);
-      log(`> Records: (${message.records.length})`);
-    });
-  } catch (error) {
-    log("Argh! " + error);
-  }
-});
+    <script>
+        var btn = document.getElementById("process");
+        var fieldOne = document.getElementById("first");
+        var fieldTwo = document.getElementById("second");
 
-writeButton.addEventListener("click", async () => {
-  log("User clicked write button");
+        btn.addEventListener("click", function (e) {
+            var contentOne = fieldOne.value.split("\n");
+            console.log(contentOne);
+            var contentTwo = fieldTwo.value.split("\n");
+            console.log(contentTwo);
 
-  try {
-    const ndef = new NDEFReader();
-    await ndef.write("Hello world!");
-    log("> Message written");
-  } catch (error) {
-    log("Argh! " + error);
-  }
-});
-</script>
+            var summary = contentOne.concat(contentTwo);
+            var result = summary.slice();
+
+            for (var i = 0; i < summary.length; i++) {
+                var val = summary[i];
+                var count = summary.filter((el) => {return el == val;}).length;
+                if (count > 1) {
+                    result = result.filter((el) => {return el != val;});
+                    contentOne = contentOne.filter((el) => {return el != val;});
+                    contentTwo = contentTwo.filter((el) => {return el != val;});
+                }
+            }
+
+            fieldOne.value = contentOne.join("\n");
+            fieldTwo.value = contentTwo.join("\n");
+        });
+    </script>
 </body>
 </html>
